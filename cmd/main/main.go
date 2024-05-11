@@ -1,7 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/iamgauravpande/kafka-playground/pkg/admin"
+	"github.com/iamgauravpande/kafka-playground/pkg/producer"
 )
 
 func main() {
@@ -12,4 +18,17 @@ func main() {
 	if !admin.TopicExist(topic) {    // topic Exist method check for topic should not exist.
 		admin.TopicCreate(topic) // Create Topic
 	}
+	username := ""
+	fmt.Print("Hi Client , Enter your username: ")
+	fmt.Scanln(&username)
+	producer := producer.NewProducer(brokers, topic)
+	defer producer.Close()
+	reader := bufio.NewReader(os.Stdin) // read from console
+	for {
+		message, _ := reader.ReadString('\n')
+		message = strings.TrimSpace(message)
+		producer.SendMessage(username, message)
+		fmt.Println("Message Sent. Press Ctrl+C to exit")
+	}
+
 }
